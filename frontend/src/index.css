@@ -1,0 +1,36 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer utilities {
+  .dot-animate {
+    display: flex;
+  }
+
+  .dot {
+    animation: blink 1s infinite;
+    opacity: 0;
+  }
+
+  .dot.delay-0 {
+    animation-delay: 0s;
+  }
+
+  .dot.delay-150 {
+    animation-delay: 0.15s;
+  }
+
+  .dot.delay-300 {
+    animation-delay: 0.3s;
+  }
+
+  @keyframes blink {
+    0%, 80%, 100% {
+      opacity: 0;
+    }
+    40% {
+      opacity: 1;
+    }
+  }
+}
+
