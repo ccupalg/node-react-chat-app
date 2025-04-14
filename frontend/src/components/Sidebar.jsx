@@ -1,23 +1,30 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useChatStore } from "../store/useChatStore";
 import { useAuthStore } from "../store/useAuthStore";
 import SidebarSkeleton from "./skeletons/SidebarSkeleton";
 import { Users } from "lucide-react";
 import Typing from "./Typing";
+import useShortcutFocus from "../hooks/useShortcutFocus";
 
 const Sidebar = () => {
   const { getUsers, users, selectedUser, setSelectedUser, isUsersLoading } = useChatStore();
 
   const { onlineUsers, typingUsers } = useAuthStore();
   const [showOnlineOnly, setShowOnlineOnly] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+
+  const _searchContactsRef = useRef(null);
+
+  useShortcutFocus(_searchContactsRef);
 
   useEffect(() => {
     getUsers();
   }, [getUsers]);
 
-  const filteredUsers = showOnlineOnly
-    ? users.filter((user) => onlineUsers.includes(user._id))
-    : users;
+  const filteredUsers = users
+  .filter(user => !showOnlineOnly || onlineUsers.includes(user._id))
+  .filter(user => !searchTerm || user.fullName.toLowerCase().includes(searchTerm.toLowerCase()));
+
 
   if (isUsersLoading) return <SidebarSkeleton />;
 
@@ -43,6 +50,14 @@ const Sidebar = () => {
         </div>
       </div>
 
+      {/* Search box*/}
+      <label className="input mt-3 mr-3 ml-2 input-bordered input-sm flex items-center gap-2 p-3 border-b border-base-300">
+        <svg className="h-5 w-5 opacity-50" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><g strokeLinejoin="round" strokeLinecap="round" strokeWidth="2.5" fill="none" stroke="currentColor"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path></g></svg>
+        <input ref={_searchContactsRef} type="search" className="grow" placeholder="Search" onChange={(e) => setSearchTerm(e.target.value)} />
+        <kbd className="kbd kbd-sm">⌘</kbd>
+        <kbd className="kbd kbd-sm">K</kbd>
+      </label>
+      
       <div className="overflow-y-auto w-full py-3">
         {filteredUsers.map((user) => (
           <button
