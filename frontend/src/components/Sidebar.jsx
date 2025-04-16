@@ -5,6 +5,7 @@ import SidebarSkeleton from "./skeletons/SidebarSkeleton";
 import Typing from "./Typing";
 import useShortcutFocus from "../hooks/useShortcutFocus";
 import { useTabStore } from "../store/useTabStore";
+import { axiosInstance } from "../lib/axios";
 
 const Sidebar = () => {
 	const {
@@ -17,7 +18,7 @@ const Sidebar = () => {
 		setSelectedUser,
 		setSelectedChannel,
 		isUsersLoading,
-		// createChannel,
+		createChannel,
 	} = useChatStore();
 	const {
 		chat: { selectedTab },
@@ -38,11 +39,33 @@ const Sidebar = () => {
 
 	useEffect(() => {
 		getChannels();
-		// createChannel({
-		// 	name: "General",
-		// 	members: ["67fd071309e640ecf6b5db45"],
-		// })
 	}, [getChannels]);
+
+	// Implement addMembersToChannel({members: ["67fd071309e640ecf6b5db45"]});
+	// Implement removeMembersFromChannel({members: ["67fd071309e640ecf6b5db45"]});
+	const handleCreateChannel = () => {
+		// Cleanup: handleCreateChannel needs to be removed
+		createChannel({
+			name: "General",
+			members: ["67fd071309e640ecf6b5db45"],
+		});
+	};
+
+	const handleAdd = async () => {
+		// axios call to the endpoint
+		await axiosInstance.post(`/channels/67ffb5c9f8113b8a16e76464/members`, {
+			members: ["67fd071309e640ecf6b5db45"],
+		});
+	};
+
+	const handleRemove = async () => {
+		// axios call to the endpoint
+		await axiosInstance.delete(`/channels/67ffb5c9f8113b8a16e76464/members`, {
+			data: {
+				members: ["67fd071309e640ecf6b5db45"],
+			}
+		});
+	};
 
 	// Keep the input focused when `searchTerm` changes
 	useEffect(() => {
@@ -240,6 +263,31 @@ const Sidebar = () => {
 				<div className="flex-1 flex flex-col overflow-auto">
 					{/* Search box*/}
 					<SearchFromList />
+
+					{/* Create channel button */}
+					<div className="flex justify-end">
+						<button
+							className="btn btn-sm btn-primary m-2"
+							onClick={handleCreateChannel}
+						>
+							Create Channel
+						</button>
+					</div>
+
+					<div className="flex justify-end">
+						<button className="btn btn-sm btn-primary m-2" onClick={handleAdd}>
+							Add member to channel
+						</button>
+					</div>
+
+					<div className="flex justify-end">
+						<button
+							className="btn btn-sm btn-primary m-2"
+							onClick={handleRemove}
+						>
+							Remove member from channel
+						</button>
+					</div>
 
 					{/* Users list*/}
 					<div className="overflow-y-auto w-full py-3">

@@ -2,6 +2,7 @@ import { create } from "zustand";
 import toast from "react-hot-toast";
 import { axiosInstance } from "../lib/axios";
 import { useAuthStore } from "./useAuthStore";
+import _ from "lodash";
 
 export const useChatStore = create((set, get) => ({
 	messages: [],
@@ -24,6 +25,7 @@ export const useChatStore = create((set, get) => ({
 			set({ isUsersLoading: false });
 		}
 	},
+
 	createChannel: async (channelData) => {
 		try {
 			const res = await axiosInstance.post("/channels", channelData);
@@ -33,6 +35,7 @@ export const useChatStore = create((set, get) => ({
 			toast.error(error.message);
 		}
 	},
+
 	getChannels: async () => {
 		set({ isChannelsLoading: true });
 		try {
@@ -44,6 +47,23 @@ export const useChatStore = create((set, get) => ({
 			set({ isChannelsLoading: false });
 		}
 	},
+
+	setChannel: async (channel) => {
+		toast.success("You are added into channel: " + channel.name);
+		set({ channels: _.uniqBy([...get().channels, channel], '_id') });
+	},
+
+	removeChannel: async (channel) => {
+		toast.success("You are removed from channel: " + channel.name);
+		set({ channels: [...(get()?.channels?.filter(ch => ch?._id !== channel?._id) || [])] });
+
+		// check id selected channel is same as the removed channel
+		const { selectedChannel } = get();
+		if (selectedChannel?._id === channel?._id) {
+			set({ selectedChannel: null });
+		}
+	},
+
 	getUserMessages: async (userId) => {
 		set({ isMessagesLoading: true });
 		try {
@@ -55,6 +75,7 @@ export const useChatStore = create((set, get) => ({
 			set({ isMessagesLoading: false });
 		}
 	},
+
 	sendMessage: async (messageData) => {
 		const { selectedUser, selectedChannel, messages } = get();
 		try {
