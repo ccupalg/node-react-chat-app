@@ -54,6 +54,40 @@ io.on("connection", (socket) => {
 
     io.emit("getTypingUsers", Object.keys(typingUserMap));
   });
+
+  // Make the Channel members to join this room
+  socket.on('joinChannel', (data) => {
+    const { channelId } = data;
+
+    const roomName = `channel_${channelId}`;
+    socket.join(roomName);
+
+    console.log(`(${socket.id}) joined ${roomName}`);
+
+    // // Optional: notify others in the room
+    // socket.to(roomName).emit('userJoined', {
+    //   userId,
+    //   socketId: socket.id,
+    //   message: `${userId} joined the channel.`,
+    // });
+  });
+
+  // Make the Channel members to leave this room
+  socket.on('leaveChannel', (data) => {
+    const { channelId } = data;
+    const roomName = `channel_${channelId}`;
+  
+    socket.leave(roomName);
+  
+    console.log(`(${socket.id}) left ${roomName}`);
+  
+    // // Optional: notify others in the room
+    // socket.to(roomName).emit('userLeft', {
+    //   username,
+    //   socketId: socket.id,
+    //   message: `${username} left the channel.`,
+    // });
+  });
 });
 
 export { io, app, server };

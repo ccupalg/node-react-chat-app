@@ -1,35 +1,35 @@
 import { useChatStore } from "../store/useChatStore";
 import { useEffect, useRef } from "react";
 
-import ChatHeader from "./ChatHeader";
+import ChannelChatHeader from "./ChannelChatHeader";
 import MessageInput from "./MessageInput";
 import MessageSkeleton from "./skeletons/MessageSkeleton";
 import { useAuthStore } from "../store/useAuthStore";
 import { formatMessageTime } from "../lib/utils";
 import Typing from "./Typing";
 
-const ChatContainer = () => {
+const ChannelChatContainer = () => {
   const {
     messages,
     getUserMessages,
     isMessagesLoading,
-    selectedUser,
-    subscribeToMessages,
+    selectedChannel,
+    subscribeToChannelMessages,
     unsubscribeFromMessages,
   } = useChatStore();
   const { authUser, typingUsers } = useAuthStore();
   const messageEndRef = useRef(null);
 
   useEffect(() => {
-    getUserMessages(selectedUser._id);
+    getUserMessages(selectedChannel._id);
 
-    subscribeToMessages();
+    subscribeToChannelMessages();
 
     return () => unsubscribeFromMessages();
   }, [
-    selectedUser._id,
+    selectedChannel._id,
     getUserMessages,
-    subscribeToMessages,
+    subscribeToChannelMessages,
     unsubscribeFromMessages,
   ]);
 
@@ -42,7 +42,7 @@ const ChatContainer = () => {
   if (isMessagesLoading) {
     return (
       <div className="flex-1 flex flex-col overflow-auto">
-        <ChatHeader />
+        <ChannelChatHeader />
         <MessageSkeleton />
         <MessageInput />
       </div>
@@ -51,7 +51,7 @@ const ChatContainer = () => {
 
   return (
     <div className="flex-1 flex flex-col overflow-auto">
-      <ChatHeader />
+      <ChannelChatHeader />
 
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
         {messages.map((message) => (
@@ -68,7 +68,7 @@ const ChatContainer = () => {
                   src={
                     message.senderId === authUser._id
                       ? authUser.profilePic || "/avatar.png"
-                      : selectedUser.profilePic || "/avatar.png"
+                      : message?.sender?.profilePic || "/avatar.png"
                   }
                   alt="profile pic"
                 />
@@ -101,22 +101,22 @@ const ChatContainer = () => {
         )}
         {messages.length > 0 && (
           <p className="text-gray-500">
-            You are chatting with {selectedUser.fullName}
+            You are chatting in the Channel: {selectedChannel.name}
           </p>
         )}
 
         {messages.length > 0 && (
           <p className="text-gray-500">
             {messages[messages.length - 1].isTyping
-              ? `${selectedUser.fullName} is typing...`
+              ? `${selectedChannel.fullName} is typing...`
               : ""}
           </p>
         )}
       </div>
 
   		{/* Typing Indicator */}
-      {typingUsers.includes(selectedUser._id) && (
-       <Typing userFullName={selectedUser.fullName} />
+      {typingUsers.includes(selectedChannel._id) && (
+       <Typing userFullName={selectedChannel.fullName} />
       )}
 
 
@@ -125,4 +125,4 @@ const ChatContainer = () => {
     </div>
   );
 };
-export default ChatContainer;
+export default ChannelChatContainer;

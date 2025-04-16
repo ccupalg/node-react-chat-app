@@ -18,6 +18,11 @@ const messageSchema = new mongoose.Schema(
     image: {
       type: String,
     },
+    messageType: {  // RELATED FEATURE: use "messageType" to differentiate between user and channel messages while notifying it's receiver
+      type: String,
+      enum: ["USER", "CHANNEL"],
+      default: "USER",
+    }
   },
   { timestamps: true }
 );
